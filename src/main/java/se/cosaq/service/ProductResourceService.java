@@ -16,8 +16,10 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 
+import se.cosaq.domain.Part;
 import se.cosaq.domain.Product;
 import se.cosaq.schema.product.ObjectFactory;
+
 
 @Path("product")
 public class ProductResourceService {
@@ -25,47 +27,62 @@ public class ProductResourceService {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("{id}")
-	public JAXBElement<se.cosaq.schema.product.Product> getProductAsTextXMLById(@PathParam("id") int id) {
+	public JAXBElement<se.cosaq.schema.product.Product> getProductAsTextXMLById(
+			@PathParam("id") int id) {
 		// TO-DO
 		Product prd = Product.getProductById(id);
 		if (prd != null) {
 			ObjectFactory objFact = new ObjectFactory();
-			se.cosaq.schema.product.Product prdXml = objFact.createProduct(); 
+			se.cosaq.schema.product.Product prdXml = objFact.createProduct();
 			prdXml.setId(prd.getId());
 			prdXml.setName(prd.getName());
+
+			se.cosaq.schema.product.PartList partListXml = objFact.createPartList();
+			List<se.cosaq.schema.product.Part> thePlist = partListXml.getPart();
+			Iterator<Part> partIter = prd.getPartList().iterator();
+			while (partIter.hasNext()) {
+				Part part = partIter.next();
+				se.cosaq.schema.product.Part partXml = objFact.createPart();
+				partXml.setId(part.getId());
+				partXml.setName(part.getName());
+				thePlist.add(partXml);
+			}
+			prdXml.setPartList(partListXml);
 			
-			return  objFact.createProduct(prdXml);
-			
+			return objFact.createProduct(prdXml);
+
 		} else
 			throw new WebApplicationException(Response.Status.NOT_FOUND);
 	}
 
-//	@GET
-//	@Produces(MediaType.APPLICATION_XML)
-//	@Path("{id}")
-//	public JAXBElement<se.cosaq.schema.product.v1.Product> getProductById(@PathParam("id") int id) {
-//		// TO-DO
-//		Product prd = Product.getProductById(id);
-//		if (prd != null) {
-//			ObjectFactory objFact = new ObjectFactory();
-//			se.cosaq.schema.product.v1.Product prdXml = objFact.createProduct(); 
-//			prdXml.setId(prd.getId());
-//			prdXml.setName(prd.getName());
-//			
-//			return  objFact.createProduct(prdXml);
-//			
-//		} else
-//			throw new WebApplicationException(Response.Status.NOT_FOUND);
-//	}
+	// @GET
+	// @Produces(MediaType.APPLICATION_XML)
+	// @Path("{id}")
+	// public JAXBElement<se.cosaq.schema.product.v1.Product>
+	// getProductById(@PathParam("id") int id) {
+	// // TO-DO
+	// Product prd = Product.getProductById(id);
+	// if (prd != null) {
+	// ObjectFactory objFact = new ObjectFactory();
+	// se.cosaq.schema.product.v1.Product prdXml = objFact.createProduct();
+	// prdXml.setId(prd.getId());
+	// prdXml.setName(prd.getName());
+	//
+	// return objFact.createProduct(prdXml);
+	//
+	// } else
+	// throw new WebApplicationException(Response.Status.NOT_FOUND);
+	// }
 
 	@GET
-	@Produces(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_XML)
 	public JAXBElement<se.cosaq.schema.product.ProductList> getAllProducts() {
 		// TO-DO
 
 		ObjectFactory objFact = new ObjectFactory();
-		se.cosaq.schema.product.ProductList prdListXml = objFact.createProductList(); 
-		List<se.cosaq.schema.product.Product> lst = prdListXml.getTheProdList();
+		se.cosaq.schema.product.ProductList prdListXml = objFact
+				.createProductList();
+		List<se.cosaq.schema.product.Product> lst = prdListXml.getProduct();
 
 		List<Product> allPrd = Product.getAllProducts();
 		Iterator<Product> iter = allPrd.iterator();
@@ -74,9 +91,23 @@ public class ProductResourceService {
 			se.cosaq.schema.product.Product prdXml = objFact.createProduct();
 			prdXml.setId(prd.getId());
 			prdXml.setName(prd.getName());
+
+			se.cosaq.schema.product.PartList partListXml = objFact.createPartList();
+			List<se.cosaq.schema.product.Part> thePlist = partListXml.getPart();
+			Iterator<Part> partIter = prd.getPartList().iterator();
+			while (partIter.hasNext()) {
+				Part part = partIter.next();
+				se.cosaq.schema.product.Part partXml = objFact.createPart();
+				partXml.setId(part.getId());
+				partXml.setName(part.getName());
+				thePlist.add(partXml);
+			}
+			prdXml.setPartList(partListXml);
+
+			
 			lst.add(prdXml);
 		}
-		return  objFact.createProductList(prdListXml);
+		return objFact.createProductList(prdListXml);
 	}
 
 	private JAXBContext test() throws JAXBException {

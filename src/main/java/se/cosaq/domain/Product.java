@@ -5,21 +5,31 @@ import java.util.Iterator;
 import java.util.List;
 
 import se.cosaq.db.DbFactory;
+import se.cosaq.db.PartDB;
 import se.cosaq.db.ProductDB;
 
 public class Product {
 
 	private String name = null;
 	private int id ;
+	private List<Part> partList = new ArrayList<Part>();
 
 	private Product(ProductDB productDB){
 		this.id = productDB.getProductId();
 		this.name = productDB.getProductName();	
+		
+		Iterator<PartDB> dbIter = productDB.getPartDBList().iterator();
+		while (dbIter.hasNext()) {
+			PartDB pdb = dbIter.next();
+			Part part = new Part(pdb);
+			partList.add(part);
+		}
+		
 	}
 	
 	public static Product getProductById(int productId){
 		Product product = null;
-		ProductDB aProductDB = DbFactory.getProduct(productId);
+		ProductDB aProductDB = DbFactory.getInstance().getProduct(productId);
 		if (aProductDB != null) {
 			product =  new Product(aProductDB);
 		}
@@ -28,7 +38,7 @@ public class Product {
 
 	public static List<Product> getAllProducts(){
 		List<Product> allProducts = new ArrayList<Product>();
-		List<ProductDB> allProductDB = DbFactory.getAllProducts();
+		List<ProductDB> allProductDB = DbFactory.getInstance().getAllProducts();
 		Iterator<ProductDB> dbIter = allProductDB.iterator();
 		while (dbIter.hasNext()) {
 			ProductDB pdb = dbIter.next();
@@ -37,6 +47,13 @@ public class Product {
 		}
 		return allProducts;
 	}
+	
+	public List<Part> getPartList() {
+		return partList;
+	}
+
+
+
 	public int getId() {
 		return id;
 	}
