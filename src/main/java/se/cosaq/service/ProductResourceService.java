@@ -10,37 +10,84 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBElement;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
 
-import se.cosaq.db.ProductDB;
 import se.cosaq.domain.Product;
+import se.cosaq.schema.product.ObjectFactory;
 
 @Path("product")
 public class ProductResourceService {
 
 	@GET
-	@Produces(MediaType.TEXT_PLAIN)
+	@Produces(MediaType.APPLICATION_JSON)
 	@Path("{id}")
-	public String getProductById(@PathParam("id") int id) {
+	public JAXBElement<se.cosaq.schema.product.Product> getProductAsTextXMLById(@PathParam("id") int id) {
 		// TO-DO
 		Product prd = Product.getProductById(id);
-		if (prd!=null) {
-			return "Got product [" + id + "]=" + prd.getName();
-		}
-		else 
+		if (prd != null) {
+			ObjectFactory objFact = new ObjectFactory();
+			se.cosaq.schema.product.Product prdXml = objFact.createProduct(); 
+			prdXml.setId(prd.getId());
+			prdXml.setName(prd.getName());
+			
+			return  objFact.createProduct(prdXml);
+			
+		} else
 			throw new WebApplicationException(Response.Status.NOT_FOUND);
 	}
 
+//	@GET
+//	@Produces(MediaType.APPLICATION_XML)
+//	@Path("{id}")
+//	public JAXBElement<se.cosaq.schema.product.v1.Product> getProductById(@PathParam("id") int id) {
+//		// TO-DO
+//		Product prd = Product.getProductById(id);
+//		if (prd != null) {
+//			ObjectFactory objFact = new ObjectFactory();
+//			se.cosaq.schema.product.v1.Product prdXml = objFact.createProduct(); 
+//			prdXml.setId(prd.getId());
+//			prdXml.setName(prd.getName());
+//			
+//			return  objFact.createProduct(prdXml);
+//			
+//		} else
+//			throw new WebApplicationException(Response.Status.NOT_FOUND);
+//	}
+
 	@GET
-	@Produces(MediaType.TEXT_PLAIN)
-	public String getAllProducts() {
+	@Produces(MediaType.APPLICATION_JSON)
+	public JAXBElement<se.cosaq.schema.product.ProductList> getAllProducts() {
 		// TO-DO
+
+		ObjectFactory objFact = new ObjectFactory();
+		se.cosaq.schema.product.ProductList prdListXml = objFact.createProductList(); 
+		List<se.cosaq.schema.product.Product> lst = prdListXml.getTheProdList();
+
 		List<Product> allPrd = Product.getAllProducts();
-		String s="";
 		Iterator<Product> iter = allPrd.iterator();
 		while (iter.hasNext()) {
 			Product prd = iter.next();
-			s= s + "\n" + "Got product [" + prd.getId() + "]=" + prd.getName();
+			se.cosaq.schema.product.Product prdXml = objFact.createProduct();
+			prdXml.setId(prd.getId());
+			prdXml.setName(prd.getName());
+			lst.add(prdXml);
 		}
-		return s;
+		return  objFact.createProductList(prdListXml);
 	}
+
+	private JAXBContext test() throws JAXBException {
+		JAXBContext jc = JAXBContext
+				.newInstance(se.cosaq.schema.product.Product.class);
+
+		Unmarshaller unmarshaller = jc.createUnmarshaller();
+		Marshaller marshaller = jc.createMarshaller();
+		marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+
+		return jc;
+	}
+
 }
