@@ -1,6 +1,41 @@
 <html>
 <head>
-    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script>
+    //<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script>
+  
+     <script>
+		function createProduct()
+		{
+			
+			var xmlhttp;
+			if (window.XMLHttpRequest)
+			  {// code for IE7+, Firefox, Chrome, Opera, Safari
+			  xmlhttp=new XMLHttpRequest();
+			  }
+			else
+			  {// code for IE6, IE5
+			  xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+			  }
+			xmlhttp.onreadystatechange=function()
+			  {
+				alert("POST readyState=" + xmlhttp.readyState + " status=" + xmlhttp.status);
+			  if (xmlhttp.readyState==4 && xmlhttp.status==200)
+			    {
+			    	alert("P0ST returned" + xmlhttp.responseText);
+			    }
+			  }
+			xmlhttp.open("POST","webapi/product",true);
+			//Send the proper header information along with the request
+			
+			var data = '{"id":"","name":"Produkt Z"}';
+
+			alert("POST:ing " + data);
+
+			xmlhttp.setRequestHeader("Content-type", "application/json");
+			xmlhttp.setRequestHeader("Content-length", data.length);
+			xmlhttp.send(data);
+		}
+	</script>
+  
   
      
 	<script>
@@ -67,7 +102,7 @@
 		      txt=txt + (x[i].getElementsByTagName("name")[0].childNodes[0].nodeValue) + "<br>";
 		      }
 		    document.getElementById("getXmlProduct").innerHTML=txt;
-		    document.getElementById("getXmlProducts").innerHTML=xmlhttp.responsText;
+		    document.getElementById("getXmlProductsSrc").innerHTML=xmlhttp.responseText;
 		    }
 		  }
 		xmlhttp.open("GET","webapi/product",true);
@@ -79,8 +114,8 @@
    <script>
 		function updateProduct()
 		{
+			
 			var xmlhttp;
-			var txt,x,i;
 			if (window.XMLHttpRequest)
 			  {// code for IE7+, Firefox, Chrome, Opera, Safari
 			  xmlhttp=new XMLHttpRequest();
@@ -91,15 +126,22 @@
 			  }
 			xmlhttp.onreadystatechange=function()
 			  {
-			  if (xmlhttp.readyState==4 && xmlhttp.status==200)
+			  if (xmlhttp.readyState==4 && xmlhttp.status==204)
 			    {
 			    	alert("PUT called");
-			    	// document.getElementById("dirnav").innerHTML=txt;
 			    }
 			  }
 			xmlhttp.open("PUT","webapi/product/1",true);
 			// xmlhttp.setRequestHeader("Accept","application/json");
-			xmlhttp.send();
+			//Send the proper header information along with the request
+			
+			var data = '{"id":1,"name":"Produkt A","partList":{"Part":[{"id":101,"name":"PART a"},{"id":102,"name":"Part b"},{"id":103,"name":"Part c"}]}}';
+
+			alert("PUT:ing " + data);
+
+			xmlhttp.setRequestHeader("Content-type", "application/json");
+			xmlhttp.setRequestHeader("Content-length", data.length);
+			xmlhttp.send(data);
 		}
 	</script>
 
@@ -199,12 +241,14 @@
    	output:<input id="op" type="text" name="" value="" /><br></br>
     // <input type="button" value="Call Servlet" name="Call Servlet" id="call"/>
 
+	var userInput = document.getElementById("ip").value;
 
 	<button type="button" onclick="loadProducts()">Get products XML</button>
 	<button type="button" onclick="loadProductsJSON()">Get products JSON</button>
 	<button type="button" onclick="loadProductJSON()">Get product as JSON</button>
 	<button type="button" onclick="loadProductXML()">Get product as XML</button>
-	<button type="button" onclick="updateProduct()">PUT product</button>
+	<button type="button" onclick="updateProduct()">PUT product </button>
+	<button type="button" onclick="createProduct()">POST product </button>
  
      <br>
     <h3>GET products XML</h3>

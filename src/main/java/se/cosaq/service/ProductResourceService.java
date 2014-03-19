@@ -30,16 +30,25 @@ public class ProductResourceService {
 	@PUT
 	@Consumes({MediaType.APPLICATION_JSON})
 	@Path("{id}")
-	public void updateProduct(@PathParam("id") int id, InputStream is) {
-		System.out.println("Updating product [" + id + "]");
-
+	public void updateProduct(@PathParam("id") int id, se.cosaq.schema.product.Product prod) {
+		if (prod!=null)
+			System.out.println("Updating product [" + prod.getId() + "]=" + prod.getName());
+		else 
+			System.out.println("Updating product. prod is null.");
 	}
 
 	@POST
 	@Consumes({MediaType.APPLICATION_JSON})
-	public void createProduct(InputStream is) {
+	@Produces({MediaType.APPLICATION_JSON})
+	public se.cosaq.schema.product.Product createProduct(se.cosaq.schema.product.Product prod) {
+		
+		// TO-DO create a domain object and save it.
+		
 		int newId=999;
-		System.out.println("Creating product [" + newId + "]");
+		prod.setId(newId);
+		System.out.println("Creating product [" + prod.getId() + "]=" + prod.getName());
+		
+		return prod;
 
 	}
 
